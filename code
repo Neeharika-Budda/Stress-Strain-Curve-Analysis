@@ -1,0 +1,47 @@
+% Stress-Strain Curve Analysis
+clc;
+clear;
+close all;
+
+% Sample Stress-Strain Data (Replace with your actual data)
+strain = [0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01];
+stress = [0, 50, 100, 150, 200, 240, 260, 280, 270, 250, 200];
+
+% Plot Stress-Strain Curve
+figure;
+plot(strain, stress, 'b-', 'LineWidth', 2);
+xlabel('Strain');
+ylabel('Stress (MPa)');
+title('Stress-Strain Curve');
+grid on;
+
+% Calculate Modulus of Elasticity (E) - Slope of initial linear portion
+linear_region = strain <= 0.002; % Adjust as needed
+p = polyfit(strain(linear_region), stress(linear_region), 1);
+E = p(1);
+disp(['Modulus of Elasticity (E): ', num2str(E), ' MPa']);
+
+% Calculate Yield Strength (0.2% offset method)
+offset_strain = 0.002;
+offset_line = E * (strain - offset_strain);
+yield_strength_index = find(stress >= offset_line, 1);
+yield_strength = stress(yield_strength_index);
+disp(['Yield Strength: ', num2str(yield_strength), ' MPa']);
+
+% Calculate Ultimate Tensile Strength (UTS)
+UTS = max(stress);
+disp(['Ultimate Tensile Strength (UTS): ', num2str(UTS), ' MPa']);
+
+% Plot 0.2% Offset Line
+hold on;
+plot(strain, offset_line, 'r--', 'LineWidth', 1.5);
+plot(strain(yield_strength_index), yield_strength, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
+legend('Stress-Strain Curve', '0.2% Offset Line', 'Yield Point');
+
+% Annotate Yield Strength and UTS
+text(strain(yield_strength_index), yield_strength, [' \leftarrow Yield Strength (', num2str(yield_strength), ' MPa)'], 'VerticalAlignment', 'bottom');
+[~, uts_index] = max(stress);
+text(strain(uts_index), UTS, [' \leftarrow UTS (', num2str(UTS), ' MPa)'], 'VerticalAlignment', 'bottom');
+
+hold off;
+
